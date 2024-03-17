@@ -1,0 +1,83 @@
+version: "3.3"
+
+services:
+  postgres:
+    image: postgres:13
+    restart: always
+    container_name: postgres
+    environment:
+      - POSTGRES_DB:my_store
+      - POSTGRES_USER:nico
+      - POSTGRES_PASSWORD:admin123
+    ports:
+      - 5432:5432
+    networks:
+      netplatzi:
+          aliases:
+            - dbpg
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: pgadmin
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '2G'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@mail.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - 5050:80
+    networks:
+       netplatzi:
+          aliases:
+            - pg-admin
+    depends_on:
+      - postgres
+
+  mysql:
+    platform: linux/x86_64
+    image: mysql:latest
+    restart: always
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DB=my_store
+      - MYSQL_USER=nico
+      - MYSQL_PASSWORD=admin123
+      - MYSQL_PORT=3306
+    ports:
+      - 3306:3306
+    networks:
+      netplatzi:
+         aliases:
+          - db-mysql
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    platform: linux/x86_64
+    depends_on:
+      - mysql
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    container_name: phpmyadmin
+    environment:
+      - MYSQL_ROOT_PASSWORD:admin123
+      - PMA_HOST:mysql
+    ports:
+      - 8090:80
+    networks:
+       netplatzi:
+          aliases:
+            - phpadmin
+
+networks:
+  netplatzi:
+    driver: bridge
+    ipam:
+      driver: default
