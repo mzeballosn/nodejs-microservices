@@ -183,3 +183,13 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/node,linux,windows
+/node_modules
+
+/workbench
+
+/mysql_data
+/mysql_data_db
+/data
+
+docker-compose-oldx.yml
+docker-compose.yml

@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./api/index.js"
+    "dev": "nodemon ./api/index.js",
+    "mysql-service": "nodemon ./mysql/index-mysql.js",
+    "post":" nodemon ./post/index-post.js"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +16,9 @@
     "body-parser": "^1.20.2",
     "express": "^4.18.3",
     "jsonwebtoken": "^9.0.2",
+    "mysql": "^2.18.1",
     "nanoid": "^5.0.6",
+    "request": "^2.88.2",
     "swagger-ui-express": "^5.0.0"
   },
   "devDependencies": {

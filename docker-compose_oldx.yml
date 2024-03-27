@@ -1,0 +1,44 @@
+version: "3.3"
+
+services:
+  mysql:
+    platform: linux/x86_64
+    image: mysql:latest
+    restart: always
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DB=my_store
+      - MYSQL_USER=nico
+      - MYSQL_PASSWORD=admin123
+      - MYSQL_PORT=3306
+    ports:
+      - 33060:3306    
+    networks:
+      netplatzi:
+         aliases:
+          - db-mysql
+    volumes:
+      - ./mysql_data:/var/lib/mysql      
+ 
+  phpmyadmin:
+    platform: linux/x86_64
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    container_name: phpmyadmin
+    environment:
+      - MYSQL_ROOT_PASSWORD:admin123
+      - PMA_HOST:mysql
+    ports:
+      - 8090:80
+    depends_on:
+      - mysql    
+    networks:
+        netplatzi:
+          aliases:
+            - phpadmin
+networks:
+  netplatzi:
+    driver: bridge
+    ipam:
+      driver: default

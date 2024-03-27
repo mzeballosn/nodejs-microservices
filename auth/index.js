@@ -4,29 +4,39 @@ const error = require('./../utils/error')
 
 const secret = config.jwt.secret
 
-function sign(data){
-    return jwt.sign(data,secret)//,{expiresIn:'15min'})
+function sign(data){          
+    return jwt.sign({ data }, secret, { expiresIn: "1h" });     
 }
  
-function verify(token){    
+function verify(token){        
     return jwt.verify(token,secret,function(err,decoded){
-            console.log(decoded)
-    })  
+            return(decoded)
+    })
 }
 
 const check = {
     own: function(req,owner){
         const decoded = decodeHeader(req)
+        const { data } = decoded
+        
+        if(!decoded){
+            console.log('token invalido')
+        }         
+        if(data.id === owner ){
+            throw error('No puedes hacer esto',401)            
+        }
+    },
+    logged: function(req,owner){
+        const decoded = decodeHeader(req)        
+    },
+    post: function(req){
+        const decoded = decodeHeader(req)
+        const { data } = decoded
+
         if(!decoded){
             console.log('token invalido')
         }
-        console.log(owner)
-        if(decoded?.id === owner ){
-            throw error('No puedes hacer esto',401)
-            
-        }
-
-    },
+    }
 }
 
 function getToken(auth){
@@ -42,11 +52,11 @@ function getToken(auth){
 
 function decodeHeader(req){
     const authorization = req.headers.authorization || '';
-    const token = getToken(authorization);
+    const token = getToken(authorization);    
     const decoded = verify(token);
-
-    req.user = decoded;
-
+    
+    req.user = decoded.data;        
+       
     return decoded;
 }
 

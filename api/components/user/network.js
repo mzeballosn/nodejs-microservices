@@ -9,68 +9,74 @@ const router  = express.Router()
 // un metodo para obtener el body 
 // router.use(express.json())
 
-router.get('/all',async (req,res)=>{    
+router.get('/all',async (req,res, next)=>{    
     const list =    Controller.listAll()
                             .then((lista) => {
                                     response.success(req,res,lista,200)
-                            }).catch((err) => {
-                                response.error(req,res,err.message,500)
-                            })
-    
+                            }).catch(next)    
 })
 
-
-router.get('/',async (req,res)=>{    
-    const list =    Controller.list()
+router.get('/',async (req,res,next)=>{    
+    const list =    Controller.listAll()
                             .then((lista) => {
                                     response.success(req,res,lista,200)
-                            }).catch((err) => {
-                                response.error(req,res,err.message,500)
-                            })
-    
+                            }).catch(next)    
 })
 
-router.get('/:id',async  (req,res)=>{   
-    const user =   Controller.get(req.params.id)
+router.get('/:id',async  (req,res,next)=>{   
+    const user =   Controller.listOne(req.params.id)
                                 .then((user)=>{
                                     response.success(req,res,user,200)
-                                }).catch((err)=>{
-                                    response.error(req,res,err.message,500)
-                                })     
+                                }).catch(next)     
 })
 
-
-router.post('/',(req,res)=>{    
+router.post('/',(req,res, next)=>{    
     const data= req.body
     const id = Controller.upsert(data)
                          .then((user)=>{
                             response.success(req,res,user,200)
-                         }).catch((err) =>{
-                            response.error(req,res,err.message,500)
-                         })   
+                         }).catch(next)   
 })
 
-router.patch('/:id', (req,res)=>{
+router.post('/follow/:id',
+  secure('follow'),
+  (req, res, next)=>{    
+       const to =  req.params.id
+       const from = req.user.id
+       Controller.follow(from,to)
+                .then(data => {
+                    response.success(req,res,data,201)
+                }).catch(next)  
+})
+router.get('/:id/following',    
+    (req,res,next)=>{
+        const {id} = req.params
+        const follows = Controller.followers(id)
+                                    .then(data => {
+                                        response.success(req,res,data,200)
+                                    }).catch(next)  
+                                                                        
+})
+
+router.patch('/:id', (req,res,next)=>{
     const { id } = req.params
-    const  data  = req.body
-    const pos  = Controller.update(id,data)
+    const  data  = req.user.id
+    const pos  = Controller.upsert(id,data)
                              .then((user)=>{
                                 response.success(req,res,user,200)
-                             }).catch((err) =>{
-                                response.error(req,res,err.message,500)
-                             })   
+                             }).catch(next)   
 })
 
-router.put('/',secure('update'),(req,res)=>{    
-    const data= req.body
-    
-    const id = Controller.upsert(data)
-                         .then((user)=>{
-                            response.success(req,res,user,200)
-                         }).catch((err) =>{
-                            response.error(req,res,err.message,500)
-                         })  
+router.put('/',
+    secure('update'),
+    (req,res,next)=>{    
+        const data= req.body         
+        const id = Controller.upsert(data)
+                            .then((user)=>{
+                                response.success(req,res,user,200)
+                            }).catch(next)  
 })
+
 
 
 module.exports = router
